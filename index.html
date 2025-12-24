@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather App</title>
+
+<style>
+body {
+    background: #0d2040;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: white;
+}
+
+.card {
+    width: 320px;
+    background: linear-gradient(180deg, #0d3b66, #082a4d);
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #ff6b6b;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ff4b4b;
+}
+
+#icon {
+    width: 120px;
+    margin: 10px auto;
+    display: none;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+}
+
+.temp {
+    font-size: 55px;
+    font-weight: bold;
+}
+
+.condition {
+    font-size: 20px;
+    opacity: 0.8;
+    margin-bottom: 15px;
+}
+
+.details {
+    background: rgba(255,255,255,0.1);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: left;
+}
+
+@media (max-width: 400px) {
+    .card {
+        width: 90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>🌤 Weather</h2>
+    <input type="text" id="city" placeholder="Enter city name">
+    <button onclick="getWeather()">Get Weather</button>
+
+    <img id="icon">
+    <div class="temp" id="temp"></div>
+    <div class="condition" id="condition"></div>
+    <div class="details" id="details"></div>
+</div>
+
+<script>
+async function getWeather() {
+    const city = document.getElementById("city").value.trim();
+    if (!city) {
+        alert("Please enter a city name");
+        return;
+    }
+
+    const apiKey = "b9473006cac2cf190d4c07b95f0a1054";
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod !== 200) {
+            alert(data.message);
+            return;
+        }
+
+        // Icon
+        const iconCode = data.weather[0].icon;
+        const icon = document.getElementById("icon");
+        icon.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+        icon.style.display = "block";
+
+        // Temperature
+        document.getElementById("temp").innerText =
+            Math.round(data.main.temp) + "°C";
+
+        // Condition
+        document.getElementById("condition").innerText =
+            data.weather[0].description;
+
+        // Extra details
+        document.getElementById("details").innerHTML = `
+            🌡 High: ${Math.round(data.main.temp_max)}°C <br>
+            ❄ Low: ${Math.round(data.main.temp_min)}°C <br>
+            💧 Humidity: ${data.main.humidity}% <br>
+            🌬 Wind: ${data.wind.speed} m/s
+        `;
+    } catch (error) {
+        alert("Failed to fetch weather data");
+        console.error(error);
+    }
+}
+</script>
+
+</body>
+</html>
